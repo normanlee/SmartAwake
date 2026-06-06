@@ -30,6 +30,17 @@ Both files must be kept in the **same directory**.
 
 ---
 
+## Screenshots
+
+| State | Image |
+| --- | --- |
+| Disabled | <img width="351" height="133" alt="Screenshot 2026-06-06 150330" src="https://github.com/user-attachments/assets/d92ac664-bc3b-4094-9613-8ac4ed99e883" /> |
+| Enabled | <img width="348" height="133" alt="Screenshot 2026-06-06 150346" src="https://github.com/user-attachments/assets/29dc4240-5074-4c4b-a623-ef13fcf47e2e" /> |
+| Context menu | <img width="467" height="126" alt="Screenshot 2026-06-06 150402" src="https://github.com/user-attachments/assets/1a5c92a3-f0b8-4432-87f7-e37105dbace4" /> |
+| Disconnect prompt | <img width="740" height="411" alt="Screenshot 2026-06-06 150432" src="https://github.com/user-attachments/assets/7b2ece43-56f8-4b2a-800f-cb3c2cced9c8" /> |
+
+---
+
 ## Requirements
 
 - Windows 10 or 11
