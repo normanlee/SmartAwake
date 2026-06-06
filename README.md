@@ -106,4 +106,4 @@ Icons are generated at runtime using GDI+ — no image files are needed.
 
 ## License
 
-MIT
+[MIT](LICENSE)
