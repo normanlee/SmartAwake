@@ -2,6 +2,10 @@
 
 SmartAwake is a lightweight, zero-CPU background utility for Windows that automatically toggles the system's "Always On" (sleep-preventing) state when a specific USB device—such as a docking station—is connected or disconnected.
 
+**Author note**: I vibe-coded this (including the readme) with Antigravity CLI running Claude Sonnet 4.6. I couldn't find a utility that would keep my laptop on when docked and revert to normal power behavior when undocked, so I settled for this, which needs to be manually enabled but will at least prompt you to disable it when unplugging while it's active.
+
+I have no experience with PowerShell scripts. If you see a glaring issue or would like to contribute, please feel free.
+
 ## Features
 - **Automatic Dock Detection:** Wakes the PC when your dock is connected, and restores normal sleep behavior when it's unplugged.
 - **Manual Toggle:** Double-click the system tray icon or use the right-click menu to manually override the awake state.
