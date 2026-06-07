@@ -2,15 +2,24 @@
 
 SmartAwake is a lightweight, zero-CPU background utility for Windows that automatically toggles the system's "Always On" (sleep-preventing) state when a specific USB device—such as a docking station—is connected or disconnected.
 
-**Author note**: I vibe-coded this (including the readme) with Antigravity CLI running Claude Sonnet 4.6. I couldn't find a utility that would keep my laptop on when docked and revert to normal power behavior when undocked, so I settled for this, which needs to be manually enabled but will at least prompt you to disable it when unplugging while it's active.
+**Author note**: I vibe-coded this (including the readme) with Antigravity CLI running Claude Sonnet 4.6 and Gemini 3.1 Pro (High). I couldn't find a utility that would keep my laptop on when docked and revert to normal power behavior when undocked, so I created it myself.
 
-I have no experience with PowerShell scripts. If you see a glaring issue or would like to contribute, please feel free.
+I have no experience with PowerShell scripts, and the only dock I've tested this with is my [Anker 778](https://www.anker.com/nz/products/a83a9?variant=45193924313259). If you see a glaring issue or would like to contribute, please feel free.
 
 ## Features
 - **Automatic Dock Detection:** Wakes the PC when your dock is connected, and restores normal sleep behavior when it's unplugged.
 - **Manual Toggle:** Double-click the system tray icon or use the right-click menu to manually override the awake state.
 - **Zero-CPU Overhead:** Uses pure Windows API event-driven architecture instead of CPU-heavy polling loops.
 - **Silent & Invisible:** Runs completely in the background via a VBScript launcher with no console window.
+
+## Screenshots
+
+| State | Image |
+| --- | --- |
+| Disabled | <img width="276" height="115" alt="Screenshot 2026-06-06 174846" src="https://github.com/user-attachments/assets/cebd284d-440b-44bd-9a16-fad6dd8d4a55" /> |
+| Enabled | <img width="278" height="85" alt="Screenshot 2026-06-06 174903" src="https://github.com/user-attachments/assets/1298fcbb-2671-4f4c-8f4f-a2efb7f576e3" /> |
+| Context menu | <img width="323" height="148" alt="Screenshot 2026-06-06 174937" src="https://github.com/user-attachments/assets/9eb049db-c6a5-45bd-91df-c39a2598e03e" /> |
+| Windows notification | <img width="645" height="213" alt="Screenshot 2026-06-06 175049" src="https://github.com/user-attachments/assets/0ea1bb3e-914f-46e6-bff9-c90ab7db91ad" /> |
 
 ## Installation & Usage
 1. Open PowerShell and run `Get-CimInstance Win32_USBHub` (or `Get-CimInstance Win32_PnPEntity`) while your dock is connected to find its `DeviceID`.
