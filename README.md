@@ -18,8 +18,8 @@ I have no experience with PowerShell scripts, and the only dock I've tested this
 | --- | --- |
 | Disabled | <img width="276" height="115" alt="Screenshot 2026-06-06 174846" src="https://github.com/user-attachments/assets/cebd284d-440b-44bd-9a16-fad6dd8d4a55" /> |
 | Enabled | <img width="278" height="85" alt="Screenshot 2026-06-06 174903" src="https://github.com/user-attachments/assets/1298fcbb-2671-4f4c-8f4f-a2efb7f576e3" /> |
-| Context menu | <img width="323" height="148" alt="Screenshot 2026-06-06 174937" src="https://github.com/user-attachments/assets/9eb049db-c6a5-45bd-91df-c39a2598e03e" /> |
-| Windows notification | <img width="645" height="213" alt="Screenshot 2026-06-06 175049" src="https://github.com/user-attachments/assets/0ea1bb3e-914f-46e6-bff9-c90ab7db91ad" /> |
+| Context menu | <img width="230" height="81" alt="Screenshot 2026-06-06 214051" src="https://github.com/user-attachments/assets/7fcdb338-7e0e-41a2-b151-fc0d67adfbc1" /> |
+| Windows notification | <img width="635" height="194" alt="Screenshot 2026-06-06 214220" src="https://github.com/user-attachments/assets/b0e4d4c6-dd33-4843-8f68-1831073f9201" /> |
 
 ## Installation & Usage
 1. Open PowerShell and run `Get-CimInstance Win32_USBHub` (or `Get-CimInstance Win32_PnPEntity`) while your dock is connected to find its `DeviceID`.
