@@ -1,109 +1,25 @@
 # SmartAwake
 
-A lightweight Windows system-tray utility written in PowerShell that prevents your PC from sleeping on demand — and reminds you to turn it off when you unplug your laptop.
-
-**Author note**: I vibe-coded this (including the readme) with Antigravity CLI running Claude Sonnet 4.6. I couldn't find a utility that would keep my laptop on when docked and revert to normal power behavior when undocked, so I settled for this, which needs to be manually enabled but will at least prompt you to disable it when unplugging while it's active.
-
-I have no experience with PowerShell scripts. If you see a glaring issue or would like to contribute, please feel free.
-
----
+SmartAwake is a lightweight, zero-CPU background utility for Windows that automatically toggles the system's "Always On" (sleep-preventing) state when a specific USB device—such as a docking station—is connected or disconnected.
 
 ## Features
+- **Automatic Dock Detection:** Wakes the PC when your dock is connected, and restores normal sleep behavior when it's unplugged.
+- **Manual Toggle:** Double-click the system tray icon or use the right-click menu to manually override the awake state.
+- **Zero-CPU Overhead:** Uses pure Windows API event-driven architecture instead of CPU-heavy polling loops.
+- **Silent & Invisible:** Runs completely in the background via a VBScript launcher with no console window.
 
-- **System tray toggle** — left-click the tray icon to switch between *Normal Sleep* (default Windows behavior) and *Always On* (display + system sleep fully suppressed)
-- **Distinct visual states** — amber sun icon for Always On, blue crescent moon for Normal Sleep, with matching tooltip and right-click menu labels
-- **Power-disconnect prompt** — if you unplug your laptop while Always On is active, a dialog appears within ~3 seconds asking if you want to revert to Normal Sleep to conserve battery
-- **Clean exit** — right-click → *Exit SmartAwake* fully restores default sleep behavior and removes the tray icon with no lingering processes
-- **No installation required** — pure PowerShell + WinForms, no dependencies, no installer
-- **Auto-start support** — an optional VBScript launcher runs the script silently (no console window) and can be added to your startup folder
+## Installation & Usage
+1. Open PowerShell and run `Get-CimInstance Win32_USBHub` (or `Get-CimInstance Win32_PnPEntity`) while your dock is connected to find its `DeviceID`.
+2. Open `SmartAwakeTray.ps1` and set `$script:TargetDeviceId` to the `VID_...&PID_...` string that matches your dock.
+3. (Optional) Toggle balloon notifications on or off by setting `$script:ShowNotifications`.
+4. Double-click `LaunchSmartAwake.vbs` to start the utility in the background. 
+5. (Optional) Place a shortcut to `LaunchSmartAwake.vbs` in your `shell:startup` folder to automatically run it when you log in to Windows.
 
----
+## The Journey of Dock Detection (Technical Notes)
+Reliably detecting the connection and disconnection of a complex USB4/Thunderbolt dock in the background using native PowerShell and WinForms turned out to be an intricate process involving several low-level Windows quirks:
 
-## Files
-
-| File                   | Purpose                                                    |
-| ---------------------- | ---------------------------------------------------------- |
-| `SmartAwakeTray.ps1`   | The application — all logic, icons, and UI                 |
-| `LaunchSmartAwake.vbs` | Silent launcher — runs the script without a console window |
-
-Both files must be kept in the **same directory**.
-
----
-
-## Screenshots
-
-| State | Image |
-| --- | --- |
-| Disabled | <img width="351" height="133" alt="Screenshot 2026-06-06 150330" src="https://github.com/user-attachments/assets/d92ac664-bc3b-4094-9613-8ac4ed99e883" /> |
-| Enabled | <img width="348" height="133" alt="Screenshot 2026-06-06 150346" src="https://github.com/user-attachments/assets/29dc4240-5074-4c4b-a623-ef13fcf47e2e" /> |
-| Context menu | <img width="467" height="126" alt="Screenshot 2026-06-06 150402" src="https://github.com/user-attachments/assets/1a5c92a3-f0b8-4432-87f7-e37105dbace4" /> |
-| Disconnect prompt | <img width="740" height="411" alt="Screenshot 2026-06-06 150432" src="https://github.com/user-attachments/assets/7b2ece43-56f8-4b2a-800f-cb3c2cced9c8" /> |
-
----
-
-## Requirements
-
-- Windows 10 or 11
-- Windows PowerShell 5.1 (built into Windows — no download needed)
-
----
-
-## Usage
-
-### Run manually
-
-Double-click `LaunchSmartAwake.vbs`. The tray icon will appear in the system tray (bottom-right). You may need to expand the hidden icons arrow `^` to see it.
-
-### Run directly (with a console window)
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "SmartAwakeTray.ps1"
-```
-
-### Tray icon controls
-
-| Action      | Result                                                       |
-| ----------- | ------------------------------------------------------------ |
-| Left-click  | Toggle between Normal Sleep and Always On                    |
-| Right-click | Open context menu (shows current state, toggle option, Exit) |
-
----
-
-## Auto-start on login (optional)
-
-To have SmartAwake launch silently every time you log in:
-
-1. Press **Win + R**, type `shell:startup`, press Enter
-2. Create a shortcut inside that folder pointing to `LaunchSmartAwake.vbs`
-
-To remove auto-start, delete the shortcut from that folder.
-
----
-
-## How it works
-
-**Always On** calls the Win32 API `SetThreadExecutionState` with the flags:
-
-```
-ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
-```
-
-This tells Windows not to sleep or turn off the display while the process is running. **Normal Sleep** clears these flags by calling `SetThreadExecutionState(ES_CONTINUOUS)` alone, fully restoring default power behavior.
-
-The power monitor runs on a 3-second timer using `SystemInformation.PowerStatus` to detect the moment AC power is disconnected. It only fires a prompt on the `Online → Offline` transition, so it won't nag repeatedly.
-
-Icons are generated at runtime using GDI+ — no image files are needed.
-
----
-
-## Notes
-
-- The console-less launch requires `LaunchSmartAwake.vbs` (or any other wrapper that passes `-WindowStyle Hidden` to `powershell.exe`). A plain `.ps1` shortcut will always show a console window — this is a Windows limitation, not a bug in the script.
-- `SetThreadExecutionState` affects only the thread that calls it, which in this case is the WinForms UI/message-pump thread — the correct thread to call it from.
-- Closing the terminal or PowerShell window that launched the script (if run directly) will also kill the tray app. Use the `.vbs` launcher or the *Exit* menu item for a clean shutdown.
-
----
-
-## License
-
-[MIT](LICENSE)
+1. **The Event Storm:** Complex docks aren't single devices; they are massive trees of nested hubs, NICs, and audio cards. Plugging one in causes an instantaneous "storm" of dozens of hardware events. Querying WMI synchronously for each one would lock up the UI thread, necessitating a debounce timer.
+2. **The Missing API Broadcasts:** By default, the standard `WM_DEVICECHANGE` broadcast in Windows is only sent to applications when a storage volume (like a flash drive) is mounted. Generic USB hubs are ignored. We had to use C# Interop to call `RegisterDeviceNotification` to explicitly ask the OS for all USB interface events.
+3. **The USB4/Thunderbolt Quirk:** Even with device notifications, the unplugs were being missed. High-speed USB4 routers (like Intel's) are treated by Windows as internal PCIe bridges rather than standard USB endpoints. We had to hook into the universal `DBT_DEVNODES_CHANGED` (0x0007) event, which fires for any structural change to the system's hardware tree.
+4. **The "Invisible Form" Handle Gotcha:** Because our background listener was an explicitly invisible WinForms `Form`, the framework silently skipped generating its underlying native Window Handle to save memory. Without a native handle, the low-level `RegisterDeviceNotification` API was never actually executed. We had to force immediate handle creation via `$null = $script:watcherForm.Handle`.
+5. **The Delayed WMI Unload:** The Windows WMI database is asynchronous to the kernel. When a massive USB4 tree is physically unplugged, it can take up to 7 seconds for the OS to fully teardown and remove the entries from WMI. If we checked immediately, WMI would report the dock was still connected. Our debounce timer now intentionally checks at 2s, 5s, and 8s intervals to guarantee it catches the delayed unload.
