@@ -61,45 +61,14 @@ public class DeviceWatcherForm : Form {
     private const int DBT_DEVICEREMOVECOMPLETE = 0x8004;
     private const int DBT_DEVNODES_CHANGED = 0x0007;
 
-    private const int DBT_DEVTYP_DEVICEINTERFACE = 5;
-    private const int DEVICE_NOTIFY_WINDOW_HANDLE = 0;
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr RegisterDeviceNotification(IntPtr recipient, IntPtr notificationFilter, int flags);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct DEV_BROADCAST_DEVICEINTERFACE {
-        public int dbcc_size;
-        public int dbcc_devicetype;
-        public int dbcc_reserved;
-        public Guid dbcc_classguid;
-        public short dbcc_name;
-    }
-
     public delegate void DeviceChangedHandler();
     public event DeviceChangedHandler OnDeviceChanged;
-
-    protected override void OnHandleCreated(EventArgs e) {
-        base.OnHandleCreated(e);
-        
-        DEV_BROADCAST_DEVICEINTERFACE dbi = new DEV_BROADCAST_DEVICEINTERFACE();
-        dbi.dbcc_size = Marshal.SizeOf(dbi);
-        dbi.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-        dbi.dbcc_reserved = 0;
-        // Listen to all USB device arrivals (GUID_DEVINTERFACE_USB_DEVICE)
-        dbi.dbcc_classguid = new Guid("A5DCBF10-6530-11D2-901F-00C04F8EE392");
-        
-        IntPtr buffer = Marshal.AllocHGlobal(dbi.dbcc_size);
-        Marshal.StructureToPtr(dbi, buffer, true);
-        RegisterDeviceNotification(this.Handle, buffer, DEVICE_NOTIFY_WINDOW_HANDLE);
-        Marshal.FreeHGlobal(buffer);
-    }
 
     protected override void WndProc(ref Message m) {
         base.WndProc(ref m);
         if (m.Msg == WM_DEVICECHANGE) {
             int wParam = m.WParam.ToInt32();
-            // Fallback: DBT_DEVNODES_CHANGED fires for ANY hardware tree change (like USB4 Bridges)
+            // DBT_DEVNODES_CHANGED fires for ANY hardware tree change (like USB4 Bridges)
             if (wParam == DBT_DEVICEARRIVAL || wParam == DBT_DEVICEREMOVECOMPLETE || wParam == DBT_DEVNODES_CHANGED) {
                 if (OnDeviceChanged != null) {
                     OnDeviceChanged();
@@ -122,7 +91,7 @@ public class DeviceWatcherForm : Form {
 $script:IsAwake = $false
 
 # ---------------------------------------------------------------------------
-# Simple GDI-drawn "D" icon factory
+# Simple GDI-drawn Sun/Moon icon factory
 # ---------------------------------------------------------------------------
 function New-DockIcon {
     param([bool]$IsConnected)
